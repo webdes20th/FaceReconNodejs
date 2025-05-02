@@ -1,0 +1,21 @@
+{
+  "name": "facerecon",
+  "version": "1.0.0",
+  "description": "A simple face recognition application using face-api.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "face",
+    "recognition",
+    "face-api.js"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "face-api.js": "^0.22.2"
+  }
+}
