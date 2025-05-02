@@ -128,9 +128,43 @@ script.onload = async () => {
     async function startVideo() {
         if (!isModelLoaded) return;
 
+        // Check for secure context (HTTPS) when deployed to a server
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            detectionsElement.innerHTML = '<p>Camera access requires HTTPS on deployed servers. Please use HTTPS to access this page.</p>';
+            console.error('Camera access requires HTTPS when deployed to a server');
+            return;
+        }
+
         try {
+            // Check if mediaDevices is supported and add a polyfill if needed
+            if (navigator.mediaDevices === undefined) {
+                navigator.mediaDevices = {};
+            }
+            
+            // Polyfill for older browsers
+            if (navigator.mediaDevices.getUserMedia === undefined) {
+                navigator.mediaDevices.getUserMedia = function(constraints) {
+                    const getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                    
+                    if (!getUserMedia) {
+                        return Promise.reject(new Error("getUserMedia is not supported in this browser"));
+                    }
+                    
+                    return new Promise(function(resolve, reject) {
+                        getUserMedia.call(navigator, constraints, resolve, reject);
+                    });
+                };
+            }
+            
             stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-            video.srcObject = stream;
+            
+            // Compatibility check for video.srcObject
+            if ('srcObject' in video) {
+                video.srcObject = stream;
+            } else {
+                // For older browsers
+                video.src = window.URL.createObjectURL(stream);
+            }
 
             // Wait for video to load metadata
             video.addEventListener('loadedmetadata', () => {
