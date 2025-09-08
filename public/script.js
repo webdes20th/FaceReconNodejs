@@ -13,10 +13,20 @@ let labeledFaceDescriptors = [];
 let faceMatcher = null;
 let capturedImageURL = null;
 let userProfiles = []; // Store complete user profiles
+let currentEditingProfile = null; // Store currently editing profile
+let isEditMode = false; // Track edit mode state
 
 // Registration form elements
 let registrationForm;
 let photoUpload;
+
+// Modal elements
+let profileModal;
+let modalClose;
+let editModeToggle;
+let modalFooter;
+let cancelEdit;
+let saveChanges;
 
 // Wait for the face-api.js to load
 script.onload = async () => {
@@ -42,6 +52,14 @@ script.onload = async () => {
     registrationForm = document.getElementById('registrationForm');
     photoUpload = document.getElementById('userPhoto');
     const captureFromCameraBtn = document.getElementById('captureFromCamera');
+
+    // Modal elements
+    profileModal = document.getElementById('profileModal');
+    modalClose = document.getElementById('modalClose');
+    editModeToggle = document.getElementById('editModeToggle');
+    modalFooter = document.getElementById('modalFooter');
+    cancelEdit = document.getElementById('cancelEdit');
+    saveChanges = document.getElementById('saveChanges');
 
     // Initially disable buttons until models are loaded
     startButton.disabled = true;
@@ -157,6 +175,31 @@ script.onload = async () => {
     
     if (captureFromCameraBtn) {
         captureFromCameraBtn.addEventListener('click', capturePhotoForRegistration);
+    }
+
+    // Modal event listeners
+    if (modalClose) {
+        modalClose.addEventListener('click', closeProfileModal);
+    }
+
+    if (profileModal) {
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                closeProfileModal();
+            }
+        });
+    }
+
+    if (editModeToggle) {
+        editModeToggle.addEventListener('click', toggleEditMode);
+    }
+
+    if (cancelEdit) {
+        cancelEdit.addEventListener('click', cancelEditMode);
+    }
+
+    if (saveChanges) {
+        saveChanges.addEventListener('click', saveProfileChanges);
     }
 
     // Auto-calculate age when birth date changes
@@ -673,7 +716,7 @@ script.onload = async () => {
         // Add each profile to the container
         profiles.forEach(profile => {
             const profileElement = document.createElement('div');
-            profileElement.className = 'reference-face';
+            profileElement.className = 'reference-face clickable-profile';
 
             const img = document.createElement('img');
             img.src = profile.imageDataUrl;
@@ -685,7 +728,15 @@ script.onload = async () => {
             const deleteButton = document.createElement('div');
             deleteButton.className = 'delete-btn';
             deleteButton.textContent = '×';
-            deleteButton.addEventListener('click', () => deleteProfile(profile.name));
+            deleteButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent opening modal when deleting
+                deleteProfile(profile.name);
+            });
+
+            // Add click event to open profile modal
+            profileElement.addEventListener('click', () => {
+                openProfileModal(profile.name);
+            });
 
             profileElement.appendChild(img);
             profileElement.appendChild(nameElement);
@@ -1236,4 +1287,392 @@ script.onload = async () => {
 
     // Initialize user profiles display
     loadUserProfiles();
+
+    // Modal Functions
+
+    // Open profile modal with user data
+    function openProfileModal(userName) {
+        // Find complete user profile
+        const userProfile = userProfiles.find(profile => profile.name === userName);
+        
+        if (!userProfile) {
+            // Fallback: try to find in basic profiles
+            const basicProfile = JSON.parse(localStorage.getItem('faceProfiles') || '[]')
+                .find(profile => profile.name === userName);
+            
+            if (basicProfile) {
+                // Show basic profile info
+                showBasicProfileModal(basicProfile);
+            } else {
+                alert('Profile not found');
+            }
+            return;
+        }
+
+        // Set current editing profile
+        currentEditingProfile = userProfile;
+        
+        // Populate modal header
+        document.getElementById('modalProfileImage').src = userProfile.imageDataUrl;
+        document.getElementById('modalProfileName').textContent = userProfile.name;
+        document.getElementById('modalProfileId').textContent = `รหัสผู้ใช้: ${userProfile.id}`;
+        document.getElementById('modalRegistrationDate').textContent = 
+            `ลงทะเบียนเมื่อ: ${new Date(userProfile.registrationDate).toLocaleDateString('th-TH', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            })}`;
+
+        // Populate profile data
+        populateProfileData(userProfile.personalInfo);
+
+        // Reset edit mode
+        isEditMode = false;
+        exitEditMode();
+
+        // Show modal
+        profileModal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    // Show basic profile modal for profiles without full data
+    function showBasicProfileModal(basicProfile) {
+        currentEditingProfile = basicProfile;
+        
+        document.getElementById('modalProfileImage').src = basicProfile.imageDataUrl;
+        document.getElementById('modalProfileName').textContent = basicProfile.name;
+        document.getElementById('modalProfileId').textContent = 'รหัสผู้ใช้: -';
+        document.getElementById('modalRegistrationDate').textContent = 'ลงทะเบียนเมื่อ: -';
+
+        // Clear all fields
+        const fieldValues = document.querySelectorAll('.field-value');
+        fieldValues.forEach(field => {
+            field.textContent = '-';
+        });
+
+        // Hide edit button for basic profiles
+        editModeToggle.style.display = 'none';
+
+        // Show modal
+        profileModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Populate profile data in modal
+    function populateProfileData(personalInfo) {
+        const fieldMapping = {
+            titleTh: personalInfo.titleTh || '-',
+            titleEn: personalInfo.titleEn || '-',
+            firstNameTh: personalInfo.firstNameTh || '-',
+            firstNameEn: personalInfo.firstNameEn || '-',
+            lastNameTh: personalInfo.lastNameTh || '-',
+            lastNameEn: personalInfo.lastNameEn || '-',
+            birthDate: personalInfo.birthDate ? new Date(personalInfo.birthDate).toLocaleDateString('th-TH') : '-',
+            age: personalInfo.age ? `${personalInfo.age} ปี` : '-',
+            weight: personalInfo.weight ? `${personalInfo.weight} กก.` : '-',
+            idType: personalInfo.idType || '-',
+            idNumber: personalInfo.idNumber || '-',
+            idIssuePlace: personalInfo.idIssuePlace || '-',
+            idCardType: personalInfo.idCardType || '-',
+            nationality: personalInfo.nationality || '-',
+            language: personalInfo.language || '-',
+            religion: personalInfo.religion || '-',
+            country: personalInfo.country || '-',
+            province: personalInfo.province || '-',
+            district: personalInfo.district || '-'
+        };
+
+        // Populate fields
+        Object.entries(fieldMapping).forEach(([field, value]) => {
+            const fieldElement = document.querySelector(`[data-field="${field}"]`);
+            if (fieldElement) {
+                fieldElement.textContent = value;
+                // Store original value for editing
+                fieldElement.dataset.originalValue = personalInfo[field] || '';
+            }
+        });
+    }
+
+    // Close profile modal
+    function closeProfileModal() {
+        if (isEditMode) {
+            if (confirm('คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการปิดหน้าต่างนี้หรือไม่?')) {
+                exitEditMode();
+                profileModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                currentEditingProfile = null;
+            }
+        } else {
+            profileModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            currentEditingProfile = null;
+        }
+    }
+
+    // Toggle edit mode
+    function toggleEditMode() {
+        if (!currentEditingProfile || !currentEditingProfile.personalInfo) {
+            alert('ไม่สามารถแก้ไขโปรไฟล์นี้ได้');
+            return;
+        }
+
+        if (isEditMode) {
+            exitEditMode();
+        } else {
+            enterEditMode();
+        }
+    }
+
+    // Enter edit mode
+    function enterEditMode() {
+        isEditMode = true;
+        editModeToggle.textContent = 'ยกเลิกการแก้ไข';
+        editModeToggle.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+        modalFooter.style.display = 'flex';
+
+        // Convert field values to input elements
+        const fieldValues = document.querySelectorAll('.field-value');
+        fieldValues.forEach(fieldElement => {
+            const fieldType = fieldElement.dataset.type;
+            const fieldName = fieldElement.dataset.field;
+            const currentValue = fieldElement.dataset.originalValue || '';
+
+            let inputElement;
+
+            if (fieldType === 'select') {
+                inputElement = createSelectInput(fieldName, currentValue);
+            } else if (fieldType === 'date') {
+                inputElement = document.createElement('input');
+                inputElement.type = 'date';
+                inputElement.value = currentValue;
+            } else if (fieldType === 'number') {
+                inputElement = document.createElement('input');
+                inputElement.type = 'number';
+                inputElement.value = currentValue;
+            } else {
+                inputElement = document.createElement('input');
+                inputElement.type = 'text';
+                inputElement.value = currentValue;
+            }
+
+            inputElement.className = 'field-value editable';
+            inputElement.dataset.field = fieldName;
+            inputElement.dataset.type = fieldType;
+            inputElement.dataset.originalValue = currentValue;
+
+            // Replace the div with input
+            fieldElement.parentNode.replaceChild(inputElement, fieldElement);
+        });
+    }
+
+    // Create select input based on field name
+    function createSelectInput(fieldName, currentValue) {
+        const select = document.createElement('select');
+        select.className = 'field-value editable';
+        
+        const options = getSelectOptions(fieldName);
+        
+        // Add empty option
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Please select';
+        select.appendChild(emptyOption);
+        
+        // Add options
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            if (option.value === currentValue) {
+                optionElement.selected = true;
+            }
+            select.appendChild(optionElement);
+        });
+        
+        return select;
+    }
+
+    // Get select options for different fields
+    function getSelectOptions(fieldName) {
+        const optionsMap = {
+            titleTh: [
+                { value: 'นาย', text: 'นาย' },
+                { value: 'นาง', text: 'นาง' },
+                { value: 'นางสาว', text: 'นางสาว' }
+            ],
+            titleEn: [
+                { value: 'Mr.', text: 'Mr.' },
+                { value: 'Mrs.', text: 'Mrs.' },
+                { value: 'Miss', text: 'Miss' }
+            ],
+            idType: [
+                { value: 'National ID', text: 'National ID' },
+                { value: 'Passport', text: 'Passport' },
+                { value: 'Alien ID', text: 'Alien ID' }
+            ],
+            idCardType: [
+                { value: 'Permanent', text: 'Permanent' },
+                { value: 'Temporary', text: 'Temporary' }
+            ],
+            nationality: [
+                { value: 'Thai', text: 'Thai' },
+                { value: 'United States', text: 'United States' },
+                { value: 'Other', text: 'Other' }
+            ],
+            language: [
+                { value: 'Thai', text: 'Thai' },
+                { value: 'Spanish', text: 'Spanish' },
+                { value: 'English', text: 'English' },
+                { value: 'Other', text: 'Other' }
+            ],
+            religion: [
+                { value: 'Buddhism', text: 'Buddhism' },
+                { value: 'Christianity', text: 'Christianity' },
+                { value: 'Islam', text: 'Islam' },
+                { value: 'Other', text: 'Other' }
+            ],
+            country: [
+                { value: 'Thailand', text: 'Thailand' },
+                { value: 'United States', text: 'United States' },
+                { value: 'Other', text: 'Other' }
+            ],
+            province: [
+                { value: 'Bangkok', text: 'Bangkok' },
+                { value: 'Chiang Mai', text: 'Chiang Mai' },
+                { value: 'Other', text: 'Other' }
+            ],
+            district: [
+                { value: 'Bang Rak', text: 'Bang Rak' },
+                { value: 'Sathorn', text: 'Sathorn' },
+                { value: 'Other', text: 'Other' }
+            ]
+        };
+        
+        return optionsMap[fieldName] || [];
+    }
+
+    // Exit edit mode
+    function exitEditMode() {
+        isEditMode = false;
+        editModeToggle.textContent = 'แก้ไขข้อมูล';
+        editModeToggle.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+        modalFooter.style.display = 'none';
+
+        // Convert input elements back to divs
+        const fieldInputs = document.querySelectorAll('.field-value.editable');
+        fieldInputs.forEach(inputElement => {
+            const fieldName = inputElement.dataset.field;
+            const originalValue = inputElement.dataset.originalValue;
+
+            const divElement = document.createElement('div');
+            divElement.className = 'field-value';
+            divElement.dataset.field = fieldName;
+            divElement.dataset.type = inputElement.dataset.type;
+            divElement.dataset.originalValue = originalValue;
+            
+            // Format display value
+            let displayValue = originalValue || '-';
+            if (fieldName === 'birthDate' && originalValue) {
+                displayValue = new Date(originalValue).toLocaleDateString('th-TH');
+            } else if (fieldName === 'age' && originalValue) {
+                displayValue = `${originalValue} ปี`;
+            } else if (fieldName === 'weight' && originalValue) {
+                displayValue = `${originalValue} กก.`;
+            }
+            
+            divElement.textContent = displayValue;
+
+            // Replace input with div
+            inputElement.parentNode.replaceChild(divElement, inputElement);
+        });
+    }
+
+    // Cancel edit mode
+    function cancelEditMode() {
+        exitEditMode();
+    }
+
+    // Save profile changes
+    function saveProfileChanges() {
+        if (!currentEditingProfile || !currentEditingProfile.personalInfo) {
+            alert('ไม่พบข้อมูลโปรไฟล์');
+            return;
+        }
+
+        // Collect updated data
+        const updatedData = {};
+        const fieldInputs = document.querySelectorAll('.field-value.editable');
+        
+        fieldInputs.forEach(input => {
+            const fieldName = input.dataset.field;
+            updatedData[fieldName] = input.value;
+        });
+
+        // Validate required fields
+        const requiredFields = ['titleTh', 'firstNameTh', 'lastNameTh', 'birthDate', 'nationality', 'language'];
+        const missingFields = requiredFields.filter(field => !updatedData[field]);
+        
+        if (missingFields.length > 0) {
+            alert(`กรุณากรอกข้อมูลที่จำเป็น: ${missingFields.join(', ')}`);
+            return;
+        }
+
+        // Auto-calculate age if birth date changed
+        if (updatedData.birthDate) {
+            const birthDate = new Date(updatedData.birthDate);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            updatedData.age = age >= 0 ? age.toString() : '';
+        }
+
+        // Update current profile
+        currentEditingProfile.personalInfo = { ...currentEditingProfile.personalInfo, ...updatedData };
+        
+        // Update name if first or last name changed
+        const newName = `${updatedData.firstNameTh} ${updatedData.lastNameTh}`;
+        const oldName = currentEditingProfile.name;
+        
+        if (newName !== oldName) {
+            currentEditingProfile.name = newName;
+            
+            // Update face recognition data
+            const faceProfileIndex = labeledFaceDescriptors.findIndex(ld => ld.label === oldName);
+            if (faceProfileIndex !== -1) {
+                labeledFaceDescriptors[faceProfileIndex] = new faceapi.LabeledFaceDescriptors(
+                    newName, 
+                    labeledFaceDescriptors[faceProfileIndex].descriptors
+                );
+                
+                // Update face matcher
+                faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+            }
+            
+            // Update basic face profiles
+            const faceProfiles = JSON.parse(localStorage.getItem('faceProfiles') || '[]');
+            const faceProfileIndex2 = faceProfiles.findIndex(p => p.name === oldName);
+            if (faceProfileIndex2 !== -1) {
+                faceProfiles[faceProfileIndex2].name = newName;
+                localStorage.setItem('faceProfiles', JSON.stringify(faceProfiles));
+            }
+        }
+
+        // Save updated profiles
+        localStorage.setItem('userProfiles', JSON.stringify(userProfiles));
+
+        // Update modal header
+        document.getElementById('modalProfileName').textContent = currentEditingProfile.name;
+
+        // Exit edit mode and refresh display
+        exitEditMode();
+        populateProfileData(currentEditingProfile.personalInfo);
+        
+        // Refresh profiles display
+        displaySavedProfiles();
+
+        alert('บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว!');
+    }
 }; 
