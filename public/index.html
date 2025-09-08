@@ -73,14 +73,16 @@
         .file-upload {
             margin: 10px 0;
         }
-        #results {
-            width: 100%;
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
+         #results {
+             width: 100%;
+             background-color: white;
+             border-radius: 8px;
+             padding: 15px;
+             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+             margin-bottom: 20px;
+             max-height: 80vh;
+             overflow-y: auto;
+         }
         .loading {
             text-align: center;
             margin: 20px 0;
@@ -160,12 +162,86 @@
         .tab-content.active {
             display: block;
         }
-        input[type="text"] {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
+                 input[type="text"], input[type="number"], input[type="date"], select {
+             padding: 8px;
+             border-radius: 4px;
+             border: 1px solid #ddd;
+             width: 100%;
+             box-sizing: border-box;
+             font-size: 14px;
+         }
+         
+         .form-group {
+             margin-bottom: 15px;
+         }
+         
+         .form-row {
+             display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+             gap: 15px;
+             margin-bottom: 15px;
+         }
+         
+         .form-group label {
+             display: block;
+             margin-bottom: 5px;
+             font-weight: bold;
+             color: #333;
+         }
+         
+         .photo-upload {
+             border: 2px dashed #ddd;
+             padding: 20px;
+             text-align: center;
+             border-radius: 8px;
+             background-color: #f9f9f9;
+         }
+         
+         .photo-upload input[type="file"] {
+             margin-top: 10px;
+         }
+         
+         .form-buttons {
+             display: flex;
+             gap: 10px;
+             margin-top: 20px;
+             justify-content: center;
+         }
+         
+         .form-buttons button {
+             flex: 1;
+             max-width: 200px;
+         }
+         
+         input:focus, select:focus {
+             outline: none;
+             border-color: #3498db;
+             box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+         }
+         
+         label::after {
+             content: "";
+         }
+         
+         label:has(+ input[required])::after,
+         label:has(+ select[required])::after {
+             content: " *";
+             color: red;
+         }
+         
+         @media (max-width: 768px) {
+             .form-row {
+                 grid-template-columns: 1fr;
+             }
+             
+             .form-buttons {
+                 flex-direction: column;
+             }
+             
+             .form-buttons button {
+                 max-width: none;
+             }
+         }
     </style>
 </head>
 <body>
@@ -204,24 +280,179 @@
             </div>
         </div>
         
-        <div class="tab-content" id="profiles-tab">
-            <div class="profile-container">
-                <h2>Add New Person</h2>
-                <div class="profile-form">
-                    <p>Add a person's face to the recognition database</p>
-                    <div>
-                        <label for="personName">Person's Name/ID:</label>
-                        <input type="text" id="personName" placeholder="Enter name or ID">
-                    </div>
-                    <div class="file-upload">
-                        <label for="faceUpload">Upload Face Image:</label>
-                        <input type="file" id="faceUpload" accept="image/*">
-                    </div>
-                    <div>
-                        <button id="captureFace">Capture From Camera</button>
-                        <button id="addPerson">Add Person</button>
-                    </div>
-                </div>
+                 <div class="tab-content" id="profiles-tab">
+             <div class="profile-container">
+                 <h2>Add New Person</h2>
+                 <form class="profile-form" id="registrationForm">
+                     <p>Add a person's face to the recognition database</p>
+                     
+                     <!-- Photo Upload Section -->
+                     <div class="form-group">
+                         <label for="userPhoto">Photo *</label>
+                         <div class="photo-upload" id="photoUpload">
+                             <input type="file" id="userPhoto" accept="image/*">
+                         </div>
+                     </div>
+
+                     <!-- Personal Information -->
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="titleTh">Thai Title *</label>
+                             <select id="titleTh" required>
+                                 <option value="">Please select</option>
+                                 <option value="นาย">นาย</option>
+                                 <option value="นาง">นาง</option>
+                                 <option value="นางสาว">นางสาว</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="titleEn">English Title</label>
+                             <select id="titleEn">
+                                 <option value="">Please select</option>
+                                 <option value="Mr.">Mr.</option>
+                                 <option value="Mrs.">Mrs.</option>
+                                 <option value="Miss">Miss</option>
+                             </select>
+                         </div>
+                     </div>
+
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="firstNameTh">Thai First Name *</label>
+                             <input type="text" id="firstNameTh" required placeholder="Enter Thai first name">
+                         </div>
+                         <div class="form-group">
+                             <label for="firstNameEn">English First Name</label>
+                             <input type="text" id="firstNameEn" placeholder="Enter English first name">
+                         </div>
+                     </div>
+
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="lastNameTh">Thai Last Name *</label>
+                             <input type="text" id="lastNameTh" required placeholder="Enter Thai last name">
+                         </div>
+                         <div class="form-group">
+                             <label for="lastNameEn">English Last Name</label>
+                             <input type="text" id="lastNameEn" placeholder="Enter English last name">
+                         </div>
+                     </div>
+
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="birthDate">Birth Date *</label>
+                             <input type="date" id="birthDate" required>
+                         </div>
+                         <div class="form-group">
+                             <label for="age">Age</label>
+                             <input type="number" id="age" readonly placeholder="Auto calculated">
+                         </div>
+                         <div class="form-group">
+                             <label for="weight">Weight (kg)</label>
+                             <input type="number" id="weight" placeholder="Enter weight">
+                         </div>
+                     </div>
+
+                     <!-- ID Card Information -->
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="idType">ID Card Type</label>
+                             <select id="idType">
+                                 <option value="">Please select</option>
+                                 <option value="National ID">National ID</option>
+                                 <option value="Passport">Passport</option>
+                                 <option value="Alien ID">Alien ID</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="idNumber">ID Number</label>
+                             <input type="text" id="idNumber" placeholder="Enter ID number">
+                         </div>
+                     </div>
+
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="idIssuePlace">ID Issue Place</label>
+                             <input type="text" id="idIssuePlace" placeholder="Enter issue place">
+                         </div>
+                         <div class="form-group">
+                             <label for="idCardType">Card Type</label>
+                             <select id="idCardType">
+                                 <option value="">Please select</option>
+                                 <option value="Permanent">Permanent</option>
+                                 <option value="Temporary">Temporary</option>
+                             </select>
+                         </div>
+                     </div>
+
+                     <!-- Location Information -->
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="nationality">Nationality *</label>
+                             <select id="nationality" required>
+                                 <option value="">Please select</option>
+                                 <option value="Thai">Thai</option>
+                                 <option value="United States">United States</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="language">Language *</label>
+                             <select id="language" required>
+                                 <option value="">Please select</option>
+                                 <option value="Thai">Thai</option>
+                                 <option value="Spanish">Spanish</option>
+                                 <option value="English">English</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="religion">Religion</label>
+                             <select id="religion">
+                                 <option value="">Please select</option>
+                                 <option value="Buddhism">Buddhism</option>
+                                 <option value="Christianity">Christianity</option>
+                                 <option value="Islam">Islam</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                     </div>
+
+                     <div class="form-row">
+                         <div class="form-group">
+                             <label for="country">Country</label>
+                             <select id="country">
+                                 <option value="">Please select</option>
+                                 <option value="Thailand">Thailand</option>
+                                 <option value="United States">United States</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="province">Province</label>
+                             <select id="province">
+                                 <option value="">Please select</option>
+                                 <option value="Bangkok">Bangkok</option>
+                                 <option value="Chiang Mai">Chiang Mai</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="district">District</label>
+                             <select id="district">
+                                 <option value="">Please select</option>
+                                 <option value="Bang Rak">Bang Rak</option>
+                                 <option value="Sathorn">Sathorn</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                     </div>
+
+                     <div class="form-buttons">
+                         <button type="button" id="captureFromCamera">Capture From Camera</button>
+                         <button type="submit" id="addPerson">Register Person</button>
+                     </div>
+                 </form>
                 
                 <hr>
                 
