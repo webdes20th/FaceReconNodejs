@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .success {
+            background: #27ae60;
+        }
+        .success:hover {
+            background: #229954;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🧪 Test Dashboard Access</h1>
+        <p>ใช้สำหรับทดสอบการเข้าสู่ Dashboard โดยไม่ต้องทำ Face Recognition</p>
+        
+        <h3>สร้างข้อมูลผู้ใช้ทดสอบ:</h3>
+        <button onclick="createTestUser()">สร้างผู้ใช้ทดสอบ (มีข้อมูลครบ)</button>
+        <button onclick="createBasicTestUser()">สร้างผู้ใช้ทดสอบ (ข้อมูลพื้นฐาน)</button>
+        
+        <h3>การทดสอบ:</h3>
+        <button class="success" onclick="goToDashboard()">🚀 ไปยัง Dashboard</button>
+        <button onclick="clearData()">🗑️ ลบข้อมูลทดสอบ</button>
+        <button onclick="showStoredData()">👁️ ดูข้อมูลที่เก็บไว้</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function createTestUser() {
+            const testUser = {
+                id: 'test_user_' + Date.now(),
+                name: 'นาย ทดสอบ ระบบ',
+                imageDataUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMzQ5OGRiIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VDwvdGV4dD4KPC9zdmc+',
+                confidence: 85,
+                loginTime: new Date().toISOString(),
+                registrationDate: new Date().toISOString(),
+                personalInfo: {
+                    titleTh: 'นาย',
+                    titleEn: 'Mr.',
+                    firstNameTh: 'ทดสอบ',
+                    firstNameEn: 'Test',
+                    lastNameTh: 'ระบบ',
+                    lastNameEn: 'System',
+                    birthDate: '1990-01-01',
+                    age: '34',
+                    weight: '70',
+                    idType: 'National ID',
+                    idNumber: '1234567890123',
+                    idIssuePlace: 'Bangkok',
+                    idCardType: 'Permanent',
+                    nationality: 'Thai',
+                    language: 'Thai',
+                    religion: 'Buddhism',
+                    country: 'Thailand',
+                    province: 'Bangkok',
+                    district: 'Bang Rak'
+                }
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(testUser));
+            showMessage('✅ สร้างผู้ใช้ทดสอบสำเร็จ (ข้อมูลครบถ้วน)', 'success');
+        }
+
+        function createBasicTestUser() {
+            const basicUser = {
+                id: 'basic_test_' + Date.now(),
+                name: 'นางสาว พื้นฐาน ทดสอบ',
+                imageDataUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZTY3ZTIyIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QjwvdGV4dD4KPC9zdmc+',
+                confidence: 72,
+                loginTime: new Date().toISOString(),
+                personalInfo: {
+                    firstNameTh: 'พื้นฐาน',
+                    lastNameTh: 'ทดสอบ',
+                    titleTh: 'นางสาว'
+                }
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(basicUser));
+            showMessage('✅ สร้างผู้ใช้ทดสอบสำเร็จ (ข้อมูลพื้นฐาน)', 'success');
+        }
+
+        function goToDashboard() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                showMessage('❌ ไม่มีข้อมูลผู้ใช้ กรุณาสร้างผู้ใช้ทดสอบก่อน', 'error');
+                return;
+            }
+            
+            showMessage('🚀 กำลังไปยัง Dashboard...', 'info');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        }
+
+        function clearData() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userProfiles');
+            localStorage.removeItem('faceProfiles');
+            showMessage('🗑️ ลบข้อมูลทดสอบแล้ว', 'info');
+        }
+
+        function showStoredData() {
+            const currentUser = localStorage.getItem('currentUser');
+            const output = document.getElementById('output');
+            
+            if (currentUser) {
+                output.innerHTML = `
+                    <h3>ข้อมูลผู้ใช้ปัจจุบัน:</h3>
+                    <pre>${JSON.stringify(JSON.parse(currentUser), null, 2)}</pre>
+                `;
+            } else {
+                output.innerHTML = '<p style="color: #e74c3c;">ไม่มีข้อมูลผู้ใช้ในระบบ</p>';
+            }
+        }
+
+        function showMessage(message, type) {
+            const output = document.getElementById('output');
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                info: '#3498db'
+            };
+            
+            output.innerHTML = `
+                <div style="
+                    background: ${colors[type] || '#333'}; 
+                    color: white; 
+                    padding: 15px; 
+                    border-radius: 6px; 
+                    margin: 20px 0;
+                ">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Auto-show stored data on load
+        window.addEventListener('DOMContentLoaded', function() {
+            showStoredData();
+        });
+    </script>
+</body>
+</html>

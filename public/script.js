@@ -960,7 +960,7 @@ script.onload = async () => {
                     </div>
                 </div>
 
-                <!-- Footer with confidence meter -->
+                <!-- Footer with confidence meter and login button -->
                 <div style="
                     margin-top: 20px; 
                     padding: 16px; 
@@ -986,6 +986,32 @@ script.onload = async () => {
                         "></div>
                     </div>
                     <div style="margin-top: 8px; font-weight: bold; color: ${confidenceColor};">${confidence}%</div>
+                    
+                    <!-- Login Button -->
+                    <div style="margin-top: 20px;">
+                        <button onclick="loginToDashboard('${profile.name}', '${profile.id}', ${confidence})" style="
+                            background: linear-gradient(135deg, #27ae60, #2ecc71);
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+                            transition: all 0.3s ease;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            margin: 0 auto;
+                            max-width: 200px;
+                            justify-content: center;
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(39, 174, 96, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(39, 174, 96, 0.3)'">
+                            <span style="font-size: 18px;">🚀</span>
+                            เข้าสู่ระบบ Dashboard
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -1016,7 +1042,30 @@ script.onload = async () => {
                 </div>
                 <div style="background: #f8f9fa; padding: 12px; border-radius: 8px;">
                     <p style="margin: 0 0 8px 0;"><strong>ชื่อ:</strong> ${name}</p>
-                    <p style="margin: 0;"><strong>ความแม่นยำ:</strong> <span style="color: #3498db; font-weight: bold;">${confidence}%</span></p>
+                    <p style="margin: 0 0 16px 0;"><strong>ความแม่นยำ:</strong> <span style="color: #3498db; font-weight: bold;">${confidence}%</span></p>
+                    
+                    <!-- Login Button -->
+                    <button onclick="loginToDashboardBasic('${name}', ${confidence})" style="
+                        background: linear-gradient(135deg, #27ae60, #2ecc71);
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 20px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        width: 100%;
+                        box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        justify-content: center;
+                    " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(39, 174, 96, 0.4)'" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(39, 174, 96, 0.3)'">
+                        <span style="font-size: 16px;">🚀</span>
+                        เข้าสู่ระบบ Dashboard
+                    </button>
                 </div>
             </div>
         `;
@@ -1675,4 +1724,65 @@ script.onload = async () => {
 
         alert('บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว!');
     }
+
+    // Login to Dashboard Functions
+    
+    // Login with complete user profile
+    function loginToDashboard(userName, userId, confidence) {
+        // Find the complete user profile
+        const userProfile = userProfiles.find(profile => profile.name === userName);
+        
+        if (userProfile) {
+            // Store user data for dashboard
+            const dashboardData = {
+                ...userProfile,
+                confidence: confidence,
+                loginTime: new Date().toISOString()
+            };
+            
+            // Store in localStorage for dashboard access
+            localStorage.setItem('currentUser', JSON.stringify(dashboardData));
+            
+            // Navigate to dashboard using only localStorage (no URL parameters)
+            window.location.href = 'dashboard.html';
+        } else {
+            // Fallback to basic login
+            loginToDashboardBasic(userName, confidence);
+        }
+    }
+    
+    // Login with basic profile (fallback)
+    function loginToDashboardBasic(userName, confidence) {
+        // Find basic profile data
+        const basicProfile = JSON.parse(localStorage.getItem('faceProfiles') || '[]')
+            .find(profile => profile.name === userName);
+        
+        if (basicProfile) {
+            const dashboardData = {
+                id: 'basic_' + Date.now(),
+                name: userName,
+                imageDataUrl: basicProfile.imageDataUrl,
+                confidence: confidence,
+                loginTime: new Date().toISOString(),
+                personalInfo: {
+                    // Basic profile doesn't have detailed info
+                    firstNameTh: userName.split(' ')[0] || '',
+                    lastNameTh: userName.split(' ').slice(1).join(' ') || '',
+                    titleTh: 'ไม่ระบุ'
+                }
+            };
+            
+            // Store in localStorage for dashboard access
+            localStorage.setItem('currentUser', JSON.stringify(dashboardData));
+            
+            // Navigate to dashboard using only localStorage (no URL parameters)
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('ไม่พบข้อมูลผู้ใช้ กรุณาลองใหม่อีกครั้ง');
+        }
+    }
+
+    // Make functions globally available
+    window.loginToDashboard = loginToDashboard;
+    window.loginToDashboardBasic = loginToDashboardBasic;
 }; 
