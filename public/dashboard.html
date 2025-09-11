@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
         .header {
             background: white;
             padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             border-bottom: 1px solid #e0e6ed;
         }
 
@@ -167,7 +168,7 @@
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #4fd1c7;
         }
 
@@ -188,7 +189,7 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .calendar-header {
@@ -252,7 +253,7 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .ward-title {
@@ -302,7 +303,7 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .schedule-title {
@@ -354,14 +355,25 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-left: 4px solid;
         }
 
-        .info-card.teal { border-left-color: #4fd1c7; }
-        .info-card.blue { border-left-color: #3b82f6; }
-        .info-card.purple { border-left-color: #8b5cf6; }
-        .info-card.green { border-left-color: #10b981; }
+        .info-card.teal {
+            border-left-color: #4fd1c7;
+        }
+
+        .info-card.blue {
+            border-left-color: #3b82f6;
+        }
+
+        .info-card.purple {
+            border-left-color: #8b5cf6;
+        }
+
+        .info-card.green {
+            border-left-color: #10b981;
+        }
 
         .card-header {
             display: flex;
@@ -381,10 +393,21 @@
             color: white;
         }
 
-        .teal .card-icon { background: #4fd1c7; }
-        .blue .card-icon { background: #3b82f6; }
-        .purple .card-icon { background: #8b5cf6; }
-        .green .card-icon { background: #10b981; }
+        .teal .card-icon {
+            background: #4fd1c7;
+        }
+
+        .blue .card-icon {
+            background: #3b82f6;
+        }
+
+        .purple .card-icon {
+            background: #8b5cf6;
+        }
+
+        .green .card-icon {
+            background: #10b981;
+        }
 
         .card-title {
             font-size: 16px;
@@ -421,7 +444,7 @@
             border-radius: 20px;
             padding: 30px;
             margin-top: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .actions-title {
@@ -522,12 +545,14 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="header-content">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 24px;">☰</span>
-                <input type="text" placeholder="ค้นหา..." style="padding: 8px 12px; border: 1px solid #e0e6ed; border-radius: 8px; background: #f8f9fa; width: 300px; font-size: 14px;">
+                <input type="text" placeholder="ค้นหา..."
+                    style="padding: 8px 12px; border: 1px solid #e0e6ed; border-radius: 8px; background: #f8f9fa; width: 300px; font-size: 14px;">
             </div>
             <h1>ผู้ดูแล ระบบใหม่</h1>
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -548,13 +573,14 @@
 
     <div class="dashboard-container">
         <div class="main-content">
-        <div class="welcome-section">
+            <div class="welcome-section">
                 <div class="user-avatar-large" id="userAvatarLarge">N</div>
                 <div class="welcome-content">
-                    <div class="welcome-title">ยินดีต้อนรับ, <span id="welcomeUserName">นาย ผู้ดูแล</span> ระบบใหม่</div>
+                    <div class="welcome-title">ยินดีต้อนรับ, <span id="welcomeUserName">นาย ผู้ดูแล</span> ระบบใหม่
+                    </div>
                     <p class="welcome-subtitle" id="userEmail">Borwornrat@everapp.io</p>
+                </div>
             </div>
-        </div>
 
             <div class="stats-overview">
                 <div class="stat-box">
@@ -564,11 +590,11 @@
                 <div class="stat-box">
                     <div class="stat-number" id="todayVisits">0</div>
                     <p class="stat-label">เยี่ยมวันนี้</p>
-                    </div>
+                </div>
                 <div class="stat-box">
                     <div class="stat-number" id="activeUsers">0</div>
                     <p class="stat-label">ผู้ใช้งานวันนี้</p>
-                    </div>
+                </div>
                 <div class="stat-box">
                     <div class="stat-number" id="totalRecognitions">0</div>
                     <p class="stat-label">จำนวนการจดจำ</p>
@@ -653,8 +679,8 @@
                         </tr>
                     </tbody>
                 </table>
-                    </div>
-                    </div>
+            </div>
+        </div>
 
         <div class="sidebar">
             <div class="calendar-widget">
@@ -673,7 +699,7 @@
                     <div class="calendar-day">พ</div>
                     <div class="calendar-day">ศ</div>
                     <div class="calendar-day">ส</div>
-                    
+
                     <div class="calendar-date">1</div>
                     <div class="calendar-date">2</div>
                     <div class="calendar-date">3</div>
@@ -723,17 +749,17 @@
                     <div class="schedule-time">11:00 - 11:30</div>
                     <div class="schedule-dot"></div>
                     <div class="schedule-content">Patient name</div>
-                    </div>
+                </div>
                 <div class="schedule-item">
                     <div class="schedule-time">15:00 - 15:30</div>
                     <div class="schedule-dot"></div>
                     <div class="schedule-content">Patient name</div>
-                    </div>
+                </div>
                 <div class="schedule-item">
                     <div class="schedule-time">15:00 - 15:30</div>
                     <div class="schedule-dot"></div>
                     <div class="schedule-content">Patient name</div>
-                    </div>
+                </div>
                 <div class="schedule-item">
                     <div class="schedule-time">15:00 - 15:30</div>
                     <div class="schedule-dot"></div>
@@ -759,12 +785,30 @@
                         <div class="card-item">
                             <span class="card-label">ตำแหน่ง:</span>
                             <span class="card-value">ผู้ดูแลระบบ</span>
+                        </div>
+                        <div class="card-item">
+                            <span class="card-label">CID:</span>
+                            <span class="card-value" id="userCID">-</span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Treatment Rights Card -->
+                <div class="info-card green" id="treatmentRightsCard" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-icon">🏥</div>
+                        <div class="card-title">สิทธิ์การรักษา</div>
+                    </div>
+                    <div class="card-content" id="treatmentRightsContent">
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            <div style="width: 30px; height: 30px; border: 3px solid #e9ecef; border-top: 3px solid #10b981; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px;"></div>
+                            <p style="margin: 0; font-size: 14px;">กำลังดึงข้อมูลสิทธิ์การรักษา...</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-            </div>
+    </div>
 
     </div>
 
@@ -783,7 +827,7 @@
                 // Clear corrupted data
                 localStorage.removeItem('currentUser');
             }
-            
+
             return null;
         }
 
@@ -806,11 +850,11 @@
                 const userEmailEl = document.getElementById('userEmail');
                 const userDisplayNameEl = document.getElementById('userDisplayName');
                 const userDisplayEmailEl = document.getElementById('userDisplayEmail');
-                
+
                 const displayName = userData.name || 'ผู้ดูแลระบบ';
                 const avatarLetter = displayName.charAt(0).toUpperCase();
                 const userEmail = userData.personalInfo?.email || 'user@everapp.io';
-                
+
                 if (userNameEl) userNameEl.textContent = displayName;
                 if (userAvatarEl) userAvatarEl.textContent = avatarLetter;
                 if (userAvatarLargeEl) userAvatarLargeEl.textContent = avatarLetter;
@@ -819,16 +863,26 @@
                 if (userDisplayNameEl) userDisplayNameEl.textContent = displayName;
                 if (userDisplayEmailEl) userDisplayEmailEl.textContent = userEmail;
 
+                // Display CID if available
+                const userCIDEl = document.getElementById('userCID');
+                const citizenId = userData.personalInfo?.citizenId;
+                if (userCIDEl) userCIDEl.textContent = citizenId || 'ไม่ระบุ';
+
+                // Load treatment rights if CID is available
+                if (citizenId) {
+                    loadTreatmentRights(citizenId);
+                }
+
                 // Statistics overview - populate with demo data or real data if available
                 const totalPatientsEl = document.getElementById('totalPatients');
                 const todayVisitsEl = document.getElementById('todayVisits');
                 const activeUsersEl = document.getElementById('activeUsers');
                 const totalRecognitionsEl = document.getElementById('totalRecognitions');
-                
+
                 // Get recognition count from localStorage or default to demo data
                 const faceProfiles = JSON.parse(localStorage.getItem('faceProfiles') || '[]');
                 const userProfiles = JSON.parse(localStorage.getItem('userProfiles') || '[]');
-                
+
                 if (totalPatientsEl) totalPatientsEl.textContent = userProfiles.length || '0';
                 if (todayVisitsEl) todayVisitsEl.textContent = '1'; // Current user login
                 if (activeUsersEl) activeUsersEl.textContent = '1'; // Current user
@@ -836,7 +890,7 @@
 
                 // Update page title to show user is logged in
                 document.title = `Dashboard - ${displayName} | ระบบจดจำใบหน้า`;
-                
+
                 // Add some demo data for the ward statistics if needed
                 console.log('Dashboard loaded for user:', displayName);
                 console.log('User confidence level:', userData.confidence || 'N/A');
@@ -867,6 +921,119 @@
 
         function settings() {
             alert('ฟีเจอร์นี้กำลังพัฒนา');
+        }
+
+        // HIS API Integration for Dashboard
+        async function fetchPatientDataByCID(citizenId) {
+            const API_BASE_URL = 'https://his-sandbox-uat.his-nonprod.everapp.io/openapi';
+            const BEARER_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFlYzVkYmRiLWIyMjgtNGIzMy1hOGY4LTc1YTQ0YjllYjg2OSIsImFjY2Vzc1Rva2VuIjoiNGFiMmMyYmEtMDljYi00YjVmLTg1OTMtYzYyYTQwMTRmZjNiIiwiaWF0IjoxNzU3MTc4NzE3fQ.Y-NrUX5emxRlhZJE7QCIzYKPvwnqbCqej_AaPZsK_z0';
+            
+            try {
+                console.log('Dashboard: Fetching patient data for CID:', citizenId);
+                
+                const response = await fetch(`${API_BASE_URL}/patient/get-by-cid/${citizenId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${BEARER_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Dashboard API response not OK:', response.status, response.statusText);
+                    if (response.status === 404) {
+                        return { error: 'ไม่พบข้อมูลผู้ป่วยในระบบ HIS' };
+                    }
+                    return { error: `เกิดข้อผิดพลาดในการเชื่อมต่อ API: ${response.status}` };
+                }
+
+                const patientData = await response.json();
+                console.log('Dashboard: Patient data received:', patientData);
+                return patientData;
+
+            } catch (error) {
+                console.error('Dashboard: Error fetching patient data:', error);
+                return { 
+                    error: 'เกิดข้อผิดพลาดในการเชื่อมต่อกับระบบ HIS',
+                    details: error.message 
+                };
+            }
+        }
+
+        // Load and display treatment rights
+        async function loadTreatmentRights(citizenId) {
+            const treatmentRightsCard = document.getElementById('treatmentRightsCard');
+            const treatmentRightsContent = document.getElementById('treatmentRightsContent');
+
+            if (!treatmentRightsCard || !treatmentRightsContent) {
+                console.error('Treatment rights elements not found');
+                return;
+            }
+
+            // Show the card
+            treatmentRightsCard.style.display = 'block';
+
+            try {
+                const patientData = await fetchPatientDataByCID(citizenId);
+
+                if (patientData.error) {
+                    treatmentRightsContent.innerHTML = `
+                        <div class="card-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <div style="color: #dc3545; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                                <span>⚠️</span> ข้อผิดพลาด
+                            </div>
+                            <div style="color: #666; font-size: 13px;">${patientData.error}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (patientData.payorPlans && patientData.payorPlans.length > 0) {
+                    let plansHtml = '';
+                    patientData.payorPlans.forEach((plan, index) => {
+                        const isActive = plan.status === 'active' || plan.isActive;
+                        const statusColor = isActive ? '#10b981' : '#6c757d';
+                        const statusText = isActive ? 'ใช้งานได้' : 'ไม่ใช้งาน';
+
+                        plansHtml += `
+                            <div class="card-item" style="flex-direction: column; align-items: flex-start; gap: 6px; padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                    <div style="font-weight: bold; color: #2c3e50;">
+                                        ${plan.planName || plan.name || `แผน ${index + 1}`}
+                                    </div>
+                                    <div style="background: ${statusColor}; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold;">
+                                        ${statusText}
+                                    </div>
+                                </div>
+                                <div style="color: #666; font-size: 12px;">
+                                    รหัส: ${plan.planCode || plan.code || 'ไม่ระบุ'}
+                                </div>
+                                ${plan.coverage ? `<div style="color: #666; font-size: 12px;">ความคุ้มครอง: ${plan.coverage}</div>` : ''}
+                            </div>
+                        `;
+                    });
+
+                    treatmentRightsContent.innerHTML = plansHtml;
+                } else {
+                    treatmentRightsContent.innerHTML = `
+                        <div class="card-item" style="justify-content: center; color: #666; font-style: italic;">
+                            ไม่มีข้อมูลสิทธิ์การรักษา
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error loading treatment rights:', error);
+                treatmentRightsContent.innerHTML = `
+                    <div class="card-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <div style="color: #dc3545; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                            <span>❌</span> เกิดข้อผิดพลาด
+                        </div>
+                        <div style="color: #666; font-size: 13px;">ไม่สามารถโหลดข้อมูลสิทธิ์การรักษาได้</div>
+                    </div>
+                `;
+            }
         }
 
         // Show loading state
@@ -941,9 +1108,9 @@
         }
 
         // Initialize dashboard
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
             console.log('Dashboard loading...');
-            
+
             try {
                 const userData = getUserData();
                 if (userData) {
@@ -972,4 +1139,5 @@
         });
     </script>
 </body>
+
 </html>
