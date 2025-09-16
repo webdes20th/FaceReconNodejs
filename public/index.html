@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Recognition App</title>
+    <title>EVER Face Recognition Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,224 +12,296 @@
             padding: 0;
             background-color: #f5f5f5;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-        header {
-            background-color: #3498db;
-            color: white;
-            width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
+        
+        .login-card {
+            display: flex;
+            width: 800px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        .container {
+        
+        .login-sidebar {
+            width: 50%;
+            background-color: #e6f2ff;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 80%;
-            max-width: 800px;
+            justify-content: space-between;
         }
+        
+        .login-content {
+            width: 50%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .ever-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .ever-logo img {
+            height: 30px;
+            margin-right: 10px;
+        }
+        
+        .ever-logo-text {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .ever-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: -5px;
+        }
+        
+        .city-illustration {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px 0;
+        }
+        
+        .ever-footer {
+            color: #666;
+            font-size: 14px;
+            margin-top: auto;
+        }
+        
+        .login-header {
+            color: #00a67d;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #00a67d;
+            font-size: 20px;
+        }
+        
         .video-container {
             position: relative;
             margin-bottom: 20px;
             width: 100%;
         }
+        
         #video, #canvas {
             width: 100%;
-            max-width: 640px;
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
         #canvas {
             position: absolute;
             top: 0;
             left: 0;
         }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+        
+        .input-group {
+            position: relative;
             margin-bottom: 20px;
         }
-        button {
-            background-color: #3498db;
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .input-group i {
+            position: absolute;
+            right: 10px;
+            top: 12px;
+            color: #999;
+        }
+        
+        .login-button {
+            background-color: #e0e0e0;
+            color: #666;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-button.active {
+            background-color: #00a67d;
+            color: white;
+        }
+        
+        .login-button:hover.active {
+            background-color: #008c69;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin: 10px 0;
+        }
+        
+        .forgot-password a {
+            color: #00a67d;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .login-problem {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .login-problem p {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .login-problem a {
+            color: #00a67d;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .control-button {
+            background-color: #00a67d;
             color: white;
             border: none;
-            padding: 10px 15px;
-            margin: 5px 0;
+            padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 14px;
         }
-        button:hover {
-            background-color: #2980b9;
+        
+        .control-button:hover {
+            background-color: #008c69;
         }
-        button:disabled {
+        
+        .control-button:disabled {
             background-color: #bdc3c7;
             cursor: not-allowed;
         }
-        .file-upload {
-            margin: 10px 0;
-        }
+        
         #results {
-            width: 100%;
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin-top: 20px;
+            font-size: 14px;
         }
+        
         .loading {
             text-align: center;
             margin: 20px 0;
             font-style: italic;
             color: #777;
         }
-        .profile-container {
-            width: 100%;
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .profile-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .reference-faces {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .reference-face {
-            position: relative;
-            width: 120px;
-            text-align: center;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .reference-face img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .reference-face .delete-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: red;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .tabs {
-            display: flex;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            background-color: #ecf0f1;
-            cursor: pointer;
-        }
-        .tab.active {
-            background-color: #3498db;
-            color: white;
-        }
-        .tab-content {
+        
+        .hidden {
             display: none;
-            width: 100%;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        input[type="text"] {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            width: 100%;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Face Recognition App</h1>
-    </header>
+    <div class="language-selector">
+        <i class="fas fa-globe"></i>
+    </div>
     
-    <div class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="recognition">Face Recognition</div>
-            <div class="tab" data-tab="profiles">Manage Profiles</div>
+    <div class="login-card">
+        <!-- Left sidebar with EVER logo and illustration -->
+        <div class="login-sidebar">
+            <div class="ever-logo">
+                <img src="https://via.placeholder.com/30x30?text=EVER" alt="EVER Logo">
+                <div>
+                    <div class="ever-logo-text">EVER</div>
+                    <div class="ever-subtitle">Wellness Information System</div>
+                </div>
+            </div>
+            
+            <img src="https://via.placeholder.com/300x300?text=City+Illustration" alt="City Illustration" class="city-illustration">
+            
+            <div class="ever-footer">Ever Medical Technology</div>
         </div>
         
-        <div class="tab-content active" id="recognition-tab">
+        <!-- Right content with login form -->
+        <div class="login-content">
+            <h1 class="login-header">Login</h1>
+            
             <div class="video-container">
                 <video id="video" autoplay muted></video>
                 <canvas id="canvas"></canvas>
             </div>
             
             <div class="controls">
-                <button id="startVideo">Start Camera</button>
-                <button id="stopVideo">Stop Camera</button>
-                <button id="detectFace">Detect Face</button>
-                <button id="recognizeFace">Recognize Face</button>
-                <div class="file-upload">
-                    <label for="imageUpload">Or upload an image: </label>
-                    <input type="file" id="imageUpload" accept="image/*">
-                </div>
+                <button id="startVideo" class="control-button">Start Camera</button>
+                <button id="stopVideo" class="control-button" disabled>Stop Camera</button>
+                <button id="recognizeFace" class="control-button">Verify Face</button>
             </div>
             
             <div id="loading" class="loading" style="display: none;">Loading models, please wait...</div>
             
             <div id="results">
-                <h2>Results</h2>
                 <div id="detections"></div>
             </div>
+            
+            <button id="loginButton" class="login-button" disabled>Login to system</button>
+            
+            <div class="login-problem">
+                <p>I FOUND A LOGIN PROBLEM</p>
+                <a href="#">CONTACT US</a>
+            </div>
         </div>
-        
-        <div class="tab-content" id="profiles-tab">
-            <div class="profile-container">
-                <h2>Add New Person</h2>
-                <div class="profile-form">
-                    <p>Add a person's face to the recognition database</p>
-                    <div>
-                        <label for="personName">Person's Name/ID:</label>
-                        <input type="text" id="personName" placeholder="Enter name or ID">
-                    </div>
-                    <div class="file-upload">
-                        <label for="faceUpload">Upload Face Image:</label>
-                        <input type="file" id="faceUpload" accept="image/*">
-                    </div>
-                    <div>
-                        <button id="captureFace">Capture From Camera</button>
-                        <button id="addPerson">Add Person</button>
-                    </div>
+    </div>
+    
+    <!-- Hidden profile management section -->
+    <div id="profiles-management" class="hidden">
+        <div class="profile-container">
+            <h2>Add New Person</h2>
+            <div class="profile-form">
+                <p>Add a person's face to the recognition database</p>
+                <div>
+                    <label for="personName">Person's Name/ID:</label>
+                    <input type="text" id="personName" placeholder="Enter name or ID">
                 </div>
-                
-                <hr>
-                
-                <h2>Saved Profiles</h2>
-                <div id="referenceContainer" class="reference-faces">
-                    <!-- Reference faces will be displayed here -->
+                <div class="file-upload">
+                    <label for="faceUpload">Upload Face Image:</label>
+                    <input type="file" id="faceUpload" accept="image/*">
                 </div>
+                <div>
+                    <button id="captureFace" class="control-button">Capture From Camera</button>
+                    <button id="addPerson" class="control-button" disabled>Add Person</button>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <h2>Saved Profiles</h2>
+            <div id="referenceContainer" class="reference-faces">
+                <!-- Reference faces will be displayed here -->
             </div>
         </div>
     </div>

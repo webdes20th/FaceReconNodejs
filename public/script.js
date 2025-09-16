@@ -12,6 +12,10 @@ let stream = null;
 let labeledFaceDescriptors = [];
 let faceMatcher = null;
 let capturedImageURL = null;
+let currentConfidence = 0;
+const CONFIDENCE_THRESHOLD = 50; // 50% confidence threshold for login
+const REDIRECT_URL = "https://his-sandbox-uat.his-nonprod.everapp.io/";
+let loginEnabled = false;
 
 // Wait for the face-api.js to load
 script.onload = async () => {
@@ -20,40 +24,23 @@ script.onload = async () => {
     canvas = document.getElementById('canvas');
     const startButton = document.getElementById('startVideo');
     const stopButton = document.getElementById('stopVideo');
-    const detectButton = document.getElementById('detectFace');
     const recognizeButton = document.getElementById('recognizeFace');
-    const imageUpload = document.getElementById('imageUpload');
     const loadingElement = document.getElementById('loading');
     const detectionsElement = document.getElementById('detections');
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
     const personNameInput = document.getElementById('personName');
     const faceUploadInput = document.getElementById('faceUpload');
     const captureFaceButton = document.getElementById('captureFace');
     const addPersonButton = document.getElementById('addPerson');
     const referenceContainer = document.getElementById('referenceContainer');
+    const loginButton = document.getElementById('loginButton');
 
     // Initially disable buttons until models are loaded
     startButton.disabled = true;
     stopButton.disabled = true;
-    detectButton.disabled = true;
     recognizeButton.disabled = true;
     captureFaceButton.disabled = true;
     addPersonButton.disabled = true;
-
-    // Tab switching functionality
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs and content
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            // Add active class to clicked tab and corresponding content
-            tab.classList.add('active');
-            const tabId = `${tab.dataset.tab}-tab`;
-            document.getElementById(tabId).classList.add('active');
-        });
-    });
+    loginButton.disabled = true;
 
     // Show loading message
     loadingElement.style.display = 'block';
@@ -72,7 +59,6 @@ script.onload = async () => {
         isModelLoaded = true;
         loadingElement.style.display = 'none';
         startButton.disabled = false;
-        detectButton.disabled = false;
         recognizeButton.disabled = false;
         captureFaceButton.disabled = false;
 
@@ -91,14 +77,15 @@ script.onload = async () => {
     // Stop video button click handler
     stopButton.addEventListener('click', stopVideo);
 
-    // Detect face button click handler
-    detectButton.addEventListener('click', detectFaces);
-
     // Recognize face button click handler
     recognizeButton.addEventListener('click', recognizeFaces);
-
-    // Image upload handler
-    imageUpload.addEventListener('change', handleImageUpload);
+    
+    // Login button click handler
+    loginButton.addEventListener('click', () => {
+        if (loginEnabled) {
+            window.location.href = REDIRECT_URL;
+        }
+    });
 
     // Capture face from camera button click handler
     captureFaceButton.addEventListener('click', captureFaceFromCamera);
@@ -198,56 +185,18 @@ script.onload = async () => {
         }
     }
 
-    // Function to detect faces
-    async function detectFaces() {
-        if (!isModelLoaded) return;
-
-        if (!video.srcObject && !imageUpload.files[0]) {
-            detectionsElement.innerHTML = '<p>Please start the camera or upload an image first.</p>';
-            return;
-        }
-
-        try {
-            // Clear previous detections
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // If we're using the webcam
-            if (video.srcObject) {
-                // Detect faces in the video
-                const detections = await faceapi.detectAllFaces(video,
-                    new faceapi.TinyFaceDetectorOptions())
-                    .withFaceLandmarks()
-                    .withFaceExpressions();
-
-                // Resize detections to match display size
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
-                // Draw the detections on the canvas
-                faceapi.draw.drawDetections(canvas, resizedDetections);
-                faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-                faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-
-                // Display detection results
-                displayDetectionResults(detections);
-            }
-        } catch (error) {
-            console.error('Error detecting faces:', error);
-            detectionsElement.innerHTML = `<p>Error detecting faces: ${error.message}</p>`;
-        }
-    }
-
     // Function to recognize faces
     async function recognizeFaces() {
         if (!isModelLoaded) return;
 
-        if (!video.srcObject && !imageUpload.files[0]) {
-            detectionsElement.innerHTML = '<p>Please start the camera or upload an image first.</p>';
+        if (!video.srcObject) {
+            detectionsElement.innerHTML = '<p>Please start the camera first.</p>';
             return;
         }
 
         // Check if we have any saved face profiles
         if (labeledFaceDescriptors.length === 0) {
-            detectionsElement.innerHTML = '<p>No face profiles found. Please add faces in the Manage Profiles tab first.</p>';
+            detectionsElement.innerHTML = '<p>No face profiles found. Please add faces to the system first.</p>';
             return;
         }
 
@@ -255,86 +204,70 @@ script.onload = async () => {
             // Clear previous detections
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // If we're using the webcam
-            if (video.srcObject) {
-                // Detect faces with descriptors for recognition
-                const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
-                    .withFaceLandmarks()
-                    .withFaceDescriptors();
-
-                // Resize detections to match display size
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
-
-                // Create face matcher if we haven't already
-                if (!faceMatcher && labeledFaceDescriptors.length > 0) {
-                    faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6); // 0.6 is the distance threshold
-                }
-
-                // Find best match for each face
-                const results = resizedDetections.map(d => {
-                    const bestMatch = faceMatcher.findBestMatch(d.descriptor);
-                    return { detection: d, bestMatch };
-                });
-
-                // Draw boxes and labels
-                results.forEach(result => {
-                    const { detection, bestMatch } = result;
-                    const box = detection.detection.box;
-                    const text = bestMatch.toString();
-                    const drawBox = new faceapi.draw.DrawBox(box, { label: text });
-                    drawBox.draw(canvas);
-                });
-
-                // Display recognition results
-                displayRecognitionResults(results);
-            }
-        } catch (error) {
-            console.error('Error recognizing faces:', error);
-            detectionsElement.innerHTML = `<p>Error recognizing faces: ${error.message}</p>`;
-        }
-    }
-
-    // Function to handle image upload for detection/recognition
-    async function handleImageUpload() {
-        if (!isModelLoaded) return;
-
-        const file = imageUpload.files[0];
-        if (!file) return;
-
-        try {
-            // Stop video if it's running
-            stopVideo();
-
-            // Create an image element
-            const img = await faceapi.bufferToImage(file);
-
-            // Set canvas size to match image
-            displaySize = { width: img.width, height: img.height };
-            faceapi.matchDimensions(canvas, displaySize);
-
-            // Draw the image on the canvas
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            // Detect faces in the image
-            const detections = await faceapi.detectAllFaces(img,
-                new faceapi.TinyFaceDetectorOptions())
+            // Detect faces with descriptors for recognition
+            const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
                 .withFaceLandmarks()
-                .withFaceExpressions();
+                .withFaceDescriptors();
 
             // Resize detections to match display size
             const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-            // Draw the detections on the canvas
-            faceapi.draw.drawDetections(canvas, resizedDetections);
-            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-            faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+            // Create face matcher if we haven't already
+            if (!faceMatcher && labeledFaceDescriptors.length > 0) {
+                faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6); // 0.6 is the distance threshold
+            }
 
-            // Display detection results
-            displayDetectionResults(detections);
+            // Find best match for each face
+            const results = resizedDetections.map(d => {
+                const bestMatch = faceMatcher.findBestMatch(d.descriptor);
+                return { detection: d, bestMatch };
+            });
 
+            // Draw boxes and labels
+            results.forEach(result => {
+                const { detection, bestMatch } = result;
+                const box = detection.detection.box;
+                const text = bestMatch.toString();
+                const drawBox = new faceapi.draw.DrawBox(box, { label: text });
+                drawBox.draw(canvas);
+            });
+
+            // Display recognition results
+            displayRecognitionResults(results);
+            
+            // Update login button status based on recognition confidence
+            if (results.length > 0) {
+                // Get the highest confidence result
+                const bestResult = results.reduce((prev, current) => {
+                    const prevConfidence = (1 - prev.bestMatch.distance) * 100;
+                    const currentConfidence = (1 - current.bestMatch.distance) * 100;
+                    return prevConfidence > currentConfidence ? prev : current;
+                });
+                
+                // Calculate confidence percentage
+                currentConfidence = (1 - bestResult.bestMatch.distance) * 100;
+                
+                // Enable login if confidence is above threshold
+                if (currentConfidence >= CONFIDENCE_THRESHOLD) {
+                    loginButton.disabled = false;
+                    loginButton.classList.add('active');
+                    loginEnabled = true;
+                } else {
+                    loginButton.disabled = true;
+                    loginButton.classList.remove('active');
+                    loginEnabled = false;
+                }
+            } else {
+                loginButton.disabled = true;
+                loginButton.classList.remove('active');
+                loginEnabled = false;
+            }
         } catch (error) {
-            console.error('Error processing image:', error);
-            detectionsElement.innerHTML = `<p>Error processing image: ${error.message}</p>`;
+            console.error('Error recognizing faces:', error);
+            detectionsElement.innerHTML = `<p>Error recognizing faces: ${error.message}</p>`;
+            loginButton.disabled = true;
+            loginButton.classList.remove('active');
+            loginEnabled = false;
         }
     }
 
@@ -346,11 +279,8 @@ script.onload = async () => {
         }
 
         try {
-            // Switch to profiles tab
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            document.querySelector('.tab[data-tab="profiles"]').classList.add('active');
-            document.getElementById('profiles-tab').classList.add('active');
+            // Show the profiles management section
+            document.getElementById('profiles-management').classList.remove('hidden');
 
             // Take screenshot of current video frame
             const captureCanvas = document.createElement('canvas');
@@ -656,11 +586,11 @@ script.onload = async () => {
             html += `Confidence: ${(detection.detection.score * 100).toFixed(2)}%`;
             html += '</li>';
         });
-
+        
         html += '</ul>';
         detectionsElement.innerHTML = html;
     }
-
+    
     // Function to display recognition results
     function displayRecognitionResults(results) {
         if (results.length === 0) {
@@ -668,19 +598,27 @@ script.onload = async () => {
             return;
         }
 
-        let html = `<p>Recognized ${results.length} face(s):</p>`;
-        html += '<ul>';
-
-        results.forEach((result, index) => {
-            const { bestMatch } = result;
-
-            html += `<li>Face ${index + 1}:<br>`;
-            html += `Identified as: ${bestMatch.label}<br>`;
-            html += `Confidence: ${((1 - bestMatch.distance) * 100).toFixed(2)}%`;
-            html += '</li>';
+        let highestConfidence = 0;
+        let recognizedPerson = '';
+        
+        // Find the highest confidence match
+        results.forEach(result => {
+            const confidence = (1 - result.bestMatch.distance) * 100;
+            if (confidence > highestConfidence) {
+                highestConfidence = confidence;
+                recognizedPerson = result.bestMatch.label;
+            }
         });
-
-        html += '</ul>';
+        
+        // Display the result with prominent styling
+        let html = `<div style="text-align: center;">`;
+        html += `<div style="font-size: 18px; margin-bottom: 10px;">Welcome, <strong>${recognizedPerson}</strong></div>`;
+        html += `<div style="font-size: 24px; font-weight: bold; color: ${highestConfidence >= CONFIDENCE_THRESHOLD ? '#00a67d' : '#ff6b6b'};">`;
+        html += `${highestConfidence.toFixed(2)}% Match</div>`;
+        html += `<div style="margin-top: 10px; font-size: 14px; color: #666;">`;
+        html += highestConfidence >= CONFIDENCE_THRESHOLD ? 'Identity verified' : 'Identity verification failed';
+        html += `</div></div>`;
+        
         detectionsElement.innerHTML = html;
     }
-}; 
+};
