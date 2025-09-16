@@ -25,6 +25,7 @@ script.onload = async () => {
     const startButton = document.getElementById('startVideo');
     const stopButton = document.getElementById('stopVideo');
     const recognizeButton = document.getElementById('recognizeFace');
+    const manageProfilesButton = document.getElementById('manageProfiles');
     const loadingElement = document.getElementById('loading');
     const detectionsElement = document.getElementById('detections');
     const personNameInput = document.getElementById('personName');
@@ -33,6 +34,10 @@ script.onload = async () => {
     const addPersonButton = document.getElementById('addPerson');
     const referenceContainer = document.getElementById('referenceContainer');
     const loginButton = document.getElementById('loginButton');
+    const profilesManagement = document.getElementById('profiles-management');
+    const faceRecognitionTab = document.getElementById('faceRecognitionTab');
+    const manageProfilesTab = document.getElementById('manageProfilesTab');
+    const loginCard = document.querySelector('.login-card');
 
     // Initially disable buttons until models are loaded
     startButton.disabled = true;
@@ -85,6 +90,29 @@ script.onload = async () => {
         if (loginEnabled) {
             window.location.href = REDIRECT_URL;
         }
+    });
+    
+    // Manage Profiles button click handler
+    manageProfilesButton.addEventListener('click', () => {
+        loginCard.classList.add('hidden');
+        profilesManagement.classList.remove('hidden');
+    });
+    
+    // Face Recognition tab click handler
+    faceRecognitionTab.addEventListener('click', () => {
+        profilesManagement.classList.add('hidden');
+        loginCard.classList.remove('hidden');
+        
+        // Update tab classes
+        faceRecognitionTab.classList.add('active');
+        manageProfilesTab.classList.remove('active');
+    });
+    
+    // Manage Profiles tab click handler
+    manageProfilesTab.addEventListener('click', () => {
+        // Already in the profiles management view, just update tab classes
+        faceRecognitionTab.classList.remove('active');
+        manageProfilesTab.classList.add('active');
     });
 
     // Capture face from camera button click handler
@@ -279,8 +307,13 @@ script.onload = async () => {
         }
 
         try {
-            // Show the profiles management section
-            document.getElementById('profiles-management').classList.remove('hidden');
+            // Show the profiles management section and hide the login card
+            loginCard.classList.add('hidden');
+            profilesManagement.classList.remove('hidden');
+            
+            // Update tab classes
+            faceRecognitionTab.classList.remove('active');
+            manageProfilesTab.classList.add('active');
 
             // Take screenshot of current video frame
             const captureCanvas = document.createElement('canvas');
@@ -524,6 +557,7 @@ script.onload = async () => {
             img.alt = profile.name;
 
             const nameElement = document.createElement('div');
+            nameElement.className = 'name';
             nameElement.textContent = profile.name;
 
             const deleteButton = document.createElement('div');
